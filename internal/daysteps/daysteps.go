@@ -3,11 +3,12 @@ package daysteps
 import (
 	"errors"
 	"fmt"
-	"github.com/Yandex-Practicum/tracker/internal/spentcalories"
 	"log"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/Yandex-Practicum/tracker/internal/spentcalories"
 )
 
 const (
@@ -23,7 +24,7 @@ func parsePackage(data string) (int, time.Duration, error) {
 	parts := strings.Split(data, ",")
 	// проверка длины строки
 	if len(parts) != 2 {
-		return 0, 0, errors.New("Ошибка: строка не содержит ровно два элемента")
+		return 0, 0, errors.New("string does not contain exactly 2 elements")
 	}
 
 	// преобразование первого элемента слайса в int
@@ -32,7 +33,7 @@ func parsePackage(data string) (int, time.Duration, error) {
 		return 0, 0, err
 	}
 	if steps <= 0 {
-		return 0, 0, errors.New("Ошибка: количество шагов должно быть больше 0")
+		return 0, 0, errors.New("number of steps must be a positive number")
 	}
 
 	// преобразование второго элемента слайса в time.Duration
@@ -41,7 +42,7 @@ func parsePackage(data string) (int, time.Duration, error) {
 		return 0, 0, err
 	}
 	if duration <= 0 {
-		return 0, 0, errors.New("Ошибка: время должно быть больше 0")
+		return 0, 0, errors.New("time must be a positive number")
 	}
 
 	return steps, duration, nil
@@ -50,13 +51,13 @@ func parsePackage(data string) (int, time.Duration, error) {
 func DayActionInfo(data string, weight, height float64) string {
 	steps, duration, err := parsePackage(data)
 	if err != nil {
-		log.Println("Ошибка: ", err)
+		log.Println(err)
 		return ""
 	}
 
 	// проверка на количество шагов
 	if steps <= 0 {
-		log.Println("Ошибка: количество шагов должно быть больше 0")
+		log.Println("number of steps must be greater than 0")
 		return ""
 	}
 
@@ -68,7 +69,7 @@ func DayActionInfo(data string, weight, height float64) string {
 	// вычисление калорий
 	calories, _ := spentcalories.WalkingSpentCalories(steps, weight, height, duration)
 	if err != nil {
-		log.Println("Ошибка расчета калорий:", err)
+		log.Println("calorie calculation error:", err)
 		return ""
 	}
 

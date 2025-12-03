@@ -23,7 +23,7 @@ func parseTraining(data string) (int, string, time.Duration, error) {
 	parts := strings.Split(data, ",")
 	// проверка длины строки
 	if len(parts) != 3 {
-		return 0, "", 0, errors.New("Ошибка: строка не содержит ровно три элемента")
+		return 0, "", 0, errors.New("string does not contain exactly 3 elements")
 	}
 
 	// преобразование первого элемента слайса в int
@@ -32,16 +32,16 @@ func parseTraining(data string) (int, string, time.Duration, error) {
 		return 0, "", 0, err
 	}
 	if steps <= 0 {
-		return 0, "", 0, errors.New("Ошибка: количество шагов должно быть положительным числом")
+		return 0, "", 0, errors.New("number of steps must be a positive number")
 	}
 
 	// преобразование третьего элемента слайса в time.Duration
 	duration, err := time.ParseDuration(parts[2])
 	if err != nil {
-		return 0, "", 0, errors.New("Ошибка: неверный формат или нулевая продолжительность")
+		return 0, "", 0, err
 	}
 	if duration <= 0 {
-		return 0, "", 0, errors.New("Ошибка: время должно быть больше 0")
+		return 0, "", 0, errors.New("time must be a positive number")
 	}
 
 	activityType := parts[1]
@@ -77,8 +77,17 @@ func meanSpeed(steps int, height float64, duration time.Duration) float64 {
 
 func RunningSpentCalories(steps int, weight, height float64, duration time.Duration) (float64, error) {
 	// проверка входных параметров на корректность
-	if (steps <= 0) || (weight <= 0) || (height <= 0) || (duration <= 0) {
-		return 0, errors.New("Ошибка: входные параметры меньше или равны нулю")
+	if steps <= 0 {
+		return 0, errors.New("steps must be greater than 0")
+	}
+	if weight <= 0 {
+		return 0, errors.New("weight must be greater than 0")
+	}
+	if height <= 0 {
+		return 0, errors.New("height must be greater than 0")
+	}
+	if duration <= 0 {
+		return 0, errors.New("duration must be greater than 0")
 	}
 
 	// расчет средней скорости
@@ -93,8 +102,17 @@ func RunningSpentCalories(steps int, weight, height float64, duration time.Durat
 
 func WalkingSpentCalories(steps int, weight, height float64, duration time.Duration) (float64, error) {
 	// проверка входных параметров на корректность
-	if (steps <= 0) || (weight <= 0) || (height <= 0) || (duration <= 0) {
-		return 0, errors.New("Ошибка: входные параметры меьше или равны нулю")
+	if steps <= 0 {
+		return 0, errors.New("steps must be greater than 0")
+	}
+	if weight <= 0 {
+		return 0, errors.New("weight must be greater than 0")
+	}
+	if height <= 0 {
+		return 0, errors.New("height must be greater than 0")
+	}
+	if duration <= 0 {
+		return 0, errors.New("duration must be greater than 0")
 	}
 
 	// расчет средней скорости
@@ -121,16 +139,22 @@ func TrainingInfo(data string, weight, height float64) (string, error) {
 
 	distans := distance(steps, height)
 	speedAverage := meanSpeed(steps, height, duration)
-	calories, _ := WalkingSpentCalories(steps, weight, height, duration)
+	var calories float64
 
 	// подсчет параметров для каждого вида тренирвоки
-	switch {
-	case (activityType == "Ходьба"):
-		calories = calories
-	case (activityType == "Бег"):
-		calories = calories * 2
+	switch activityType {
+	case "Ходьба":
+		calories, err = WalkingSpentCalories(steps, weight, height, duration)
+		if err != nil {
+			return "", err
+		}
+	case "Бег":
+		calories, err = RunningSpentCalories(steps, weight, height, duration)
+		if err != nil {
+			return "", err
+		}
 	default:
-		return "", errors.New("Ошибка: неизвестный тип тренировки")
+		return "", errors.New("неизвестный тип тренировки")
 	}
 	result := fmt.Sprintf("Тип тренировки: %s\nДлительность: %.2f ч.\nДистанция: %.2f км.\nСкорость: %.2f км/ч\nСожгли калорий: %.2f\n",
 		activityType, float64(duration.Hours()), distans, speedAverage, calories)
